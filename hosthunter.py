@@ -1,24 +1,4 @@
 #!/usr/bin/python3
-#
-# | $$  | $$                              | $$  | $$
-# | $$  | $$                      | $$    | $$  | $$                      | $$
-# | $$  | $$  /$$$$$$   /$$$$$$$ /$$$$$$  | $$  | $$ /$$   /$$ /$$$$$$$  /$$$$$$    /$$$$$$   /$$$$$$
-# | $$$$$$$$ /$$__  $$ /$$_____/|_  $$_/  | $$$$$$$$| $$  | $$| $$__  $$|_  $$_/   /$$__  $$ /$$__  $$
-# | $$__  $$| $$  \ $$|  $$$$$$   | $$    | $$__  $$| $$  | $$| $$  \ $$  | $$    | $$$$$$$$| $$  \__/
-# | $$  | $$| $$__| $$ \____  $$  | $$ /$$| $$  | $$| $$__| $$| $$  | $$  | $$ /$$| $$_____/| $$
-# | $$  | $$|  $$$$$$/ /$$$$$$$/  |  $$$$/| $$  | $$|  $$$$$$/| $$  | $$  |  $$$$/|  $$$$$$$| $$
-# |__/  |__/ \______/ |_______/    \___/  |__/  |__/ \______/ |__/  |__/   \___/   \_______/|__/  v1.5
-#
-# Author  : Andreas Georgiou (@superhedgy)
-# Email   : ageorgiou@trustwave.com
-# Twitter : @superhedgy
-# Version: v2.0
-#
-# [+] Simple Usage Example:
-#
-#       $ python3.10 hosthunter.py <target_ips.txt>
-#
-#       $ cat vhosts.csv
 
 # Standard Python Libraries
 import argparse
@@ -26,9 +6,8 @@ import sys
 import os
 import ssl
 import socket
+import json
 import signal
-import platform
-import ipaddress
 import re
 from datetime import datetime
 from time import time, sleep
@@ -37,8 +16,8 @@ from validator_collection import checkers
 import OpenSSL
 import urllib3
 import requests
-from requests.packages.urllib3.exceptions import InsecureRequestWarning
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
 # Constants
 __version__ = "v2.0"
@@ -48,7 +27,7 @@ socket.setdefaulttimeout(3)
 global appsf
 global vhostsf
 global ipv6_enabled
-ipv6_enabled=False
+ipv6_enabled=True
 regx = "<li class=\"b_algo\"(.+?)</li>"
 pattern_url = re.compile(r"https?://(www\.)?|(/.*)?")
 pattern = re.compile(regx)
@@ -331,8 +310,8 @@ def reverseiplookup(hostx):
 def sig_handler(signal, frame):
     print("\n[!] HostHunter is shutting down!")
     try:
-        driver.close()
-        driver.quit()
+        signal.driver.close()
+        signal.driver.quit()
         signal.pause()
     except BaseException:
         pass
@@ -348,51 +327,57 @@ def write_results():
     # Output File Naming & Path
     if not args.output:
         base_path = "hh_"+ datetime.now().strftime("%d_%m_%Y-%H.%M.%S")
-    appsf = open(args.output+base_path+".webapps", "wt")  # Write File
-    vhostsf = open(args.output+base_path+".vhosts", "wt")
-    vhostsf_csv = open(args.output+base_path+".vhosts.csv", "wt")
-    nessusf = open(args.output+base_path+".nessus", 'wt')
+    # appsf = open(args.output+base_path+".webapps", "wt")  # Write File
+    vhostsf = open(args.output+base_path+".json", "wt")
+    # vhostsf_csv = open(args.output+base_path+".vhosts.csv", "wt")
+    # nessusf = open(args.output+base_path+".nessus", 'wt')
 
     for format in list_format:
         match format:
             case "csv":
-                # Write Header in CSV File
-                vhostsf_csv.write(
-                    "\"" +
-                    "IP Address" +
-                    "\",\"" +
-                    "Port/Protocol" +
-                    "\",\"" +
-                    "Domains" +
-                    "\",\"" +
-                    "Operating System" +
-                    "\",\"" +
-                    "OS Version" +
-                    "\",\"" +
-                    "Notes" +
-                    "\"\n")  # vhosts.csv Header
-                    # Merging the lists prooved Faster than list iterations
-                for item in data_dict:
-                    for host in data_dict[item].hname:
-                        hostnames = ','.join(data_dict[item].hname)
-                        row = "\"" + data_dict[item].address + "\"," + "\"443/tcp\"" + \
-                        "," + "\"" + hostnames + "\",\"\",\"\",\"\"" + "\n"
-                    vhostsf_csv.write(row)
+                # # Write Header in CSV File
+                # vhostsf_csv.write(
+                #     "\"" +
+                #     "IP Address" +
+                #     "\",\"" +
+                #     "Port/Protocol" +
+                #     "\",\"" +
+                #     "Domains" +
+                #     "\",\"" +
+                #     "Operating System" +
+                #     "\",\"" +
+                #     "OS Version" +
+                #     "\",\"" +
+                #     "Notes" +
+                #     "\"\n")  # vhosts.csv Header
+                #     # Merging the lists prooved Faster than list iterations
+                # for item in data_dict:
+                #     for host in data_dict[item].hname:
+                #         hostnames = ','.join(data_dict[item].hname)
+                #         row = "\"" + data_dict[item].address + "\"," + "\"443/tcp\"" + \
+                #         "," + "\"" + hostnames + "\",\"\",\"\",\"\"" + "\n"
+                #     vhostsf_csv.write(row)
+                pass
             case "nessus":
-                # Nessus Function  - Generates IP/Hostname pairs in Nessus tool format.
-                for item in data_dict:
-                    for host in data_dict[item].hname:
-                        row = host + "[" + data_dict[item].address + "], "
-                        nessusf.write(row)
-                    if not data_dict[item].hname:
-                        nessusf.write(data_dict[item].address)
-                    nessusf.close()
+                # # Nessus Function  - Generates IP/Hostname pairs in Nessus tool format.
+                # for item in data_dict:
+                #     for host in data_dict[item].hname:
+                #         row = host + "[" + data_dict[item].address + "], "
+                #         nessusf.write(row)
+                #     if not data_dict[item].hname:
+                #         nessusf.write(data_dict[item].address)
+                #     nessusf.close()
+                    pass
 
             case "txt":
+                resultdic = []
+
                 for item in data_dict:
                     for hname in data_dict[item].hname:
-                        vhostsf.write(hname + "\n")
-                    vhostsf.close()
+                        resultdic.append({"hostname": hname})
+
+                json.dump(resultdic, vhostsf)
+                vhostsf.close()
 
     # Write Results in TXT File
     for item in data_dict:
