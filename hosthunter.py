@@ -2,6 +2,7 @@
 
 # Standard Python Libraries
 import argparse
+import pathlib
 import sys
 import os
 import ssl
@@ -16,6 +17,7 @@ from validator_collection import checkers
 import OpenSSL
 import urllib3
 import requests
+
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 requests.packages.urllib3.disable_warnings(requests.packages.urllib3.exceptions.InsecureRequestWarning)
 
@@ -27,7 +29,7 @@ socket.setdefaulttimeout(3)
 global appsf
 global vhostsf
 global ipv6_enabled
-ipv6_enabled=True
+ipv6_enabled = True
 regx = "<li class=\"b_algo\"(.+?)</li>"
 pattern_url = re.compile(r"https?://(www\.)?|(/.*)?")
 pattern = re.compile(regx)
@@ -95,11 +97,12 @@ def initialise():
         print("Example Usage: python3.10 hosthunter.py -t 8.8.8.8 -o vhosts.csv \n")
         exit()
 
-    list_format=args.format.split(',')
+    list_format = args.format.split(',')
 
     for type in list_format:
-        if type.lower() != "txt" and type.lower() != "csv" and  type.lower()!= "nessus" and type.lower()!= "all":
-            print("\n[*] Error:  Output File Format is not supported. Choose between 'txt' or 'csv' or 'Nessus' or all .\n")
+        if type.lower() != "txt" and type.lower() != "csv" and type.lower() != "nessus" and type.lower() != "all":
+            print(
+                "\n[*] Error:  Output File Format is not supported. Choose between 'txt' or 'csv' or 'Nessus' or all .\n")
             print("Example Usage: python3 hosthunter.py targets.txt -f \"txt,csv,Nessus\" \n")
             exit()
 
@@ -130,9 +133,10 @@ def initialise():
 
     if ipv6_on():
         global ipv6_enabled
-        ipv6_enabled=True
+        ipv6_enabled = True
     else:
-        ipv6_enabled=False
+        ipv6_enabled = False
+
 
 def read_targets():
     targets = []
@@ -149,16 +153,16 @@ def read_targets():
 # Prints HostHunter Banner
 def display_banner():
     banner = (
-        "\n | $$  | $$                              | $$  | $$                                     \n"
-        " | $$  | $$                      | $$    | $$  | $$                      | $$\n"
-        " | $$  | $$  /$$$$$$   /$$$$$$$ /$$$$$$  | $$  | $$ /$$   /$$ /$$$$$$$  /$$$$$$    /$$$$$$   /$$$$$$\n"
-        " | $$$$$$$$ /$$__  $$ /$$_____/|_  $$_/  | $$$$$$$$| $$  | $$| $$__  $$|_  $$_/   /$$__  $$ /$$__  $$\n"
-        " | $$__  $$| $$  \\ $$|  $$$$$$   | $$    | $$__  $$| $$  | $$| $$ \\ $$  | $$    | $$$$$$$$| $$  \\__/\n"
-        " | $$  | $$| $$__| $$ \\____  $$  | $$ /$$| $$  | $$| $$__| $$| $$  | $$  | $$ /$$| $$_____/| $$\n"
-        " | $$  | $$|  $$$$$$/ /$$$$$$$/  |  $$$$/| $$  | $$|  $$$$$$/| $$  | $$  |  $$$$/|  $$$$$$$| $$\n"
-        " |__/  |__/ \\______/ |_______/    \\___/  |__/  |__/ \\______/ |__/  |__/   \\___/   \\_______/|__/  " +
-        __version__ +
-        "\n")
+            "\n | $$  | $$                              | $$  | $$                                     \n"
+            " | $$  | $$                      | $$    | $$  | $$                      | $$\n"
+            " | $$  | $$  /$$$$$$   /$$$$$$$ /$$$$$$  | $$  | $$ /$$   /$$ /$$$$$$$  /$$$$$$    /$$$$$$   /$$$$$$\n"
+            " | $$$$$$$$ /$$__  $$ /$$_____/|_  $$_/  | $$$$$$$$| $$  | $$| $$__  $$|_  $$_/   /$$__  $$ /$$__  $$\n"
+            " | $$__  $$| $$  \\ $$|  $$$$$$   | $$    | $$__  $$| $$  | $$| $$ \\ $$  | $$    | $$$$$$$$| $$  \\__/\n"
+            " | $$  | $$| $$__| $$ \\____  $$  | $$ /$$| $$  | $$| $$__| $$| $$  | $$  | $$ /$$| $$_____/| $$\n"
+            " | $$  | $$|  $$$$$$/ /$$$$$$$/  |  $$$$/| $$  | $$|  $$$$$$/| $$  | $$  |  $$$$/|  $$$$$$$| $$\n"
+            " |__/  |__/ \\______/ |_______/    \\___/  |__/  |__/ \\______/ |__/  |__/   \\___/   \\_______/|__/  " +
+            __version__ +
+            "\n")
 
     print("%s" % banner)
     print("\n", "HostHunter: ", __version__)
@@ -169,12 +173,14 @@ def display_banner():
     else:
         print("[!] IPv6 Hunting is Disabled")
 
+
 class target:
     def __init__(self, address):
         self.address = address
         self.hname = []
         self.apps = []
         self.ipv6 = False
+
 
 data_dict = {}
 
@@ -196,7 +202,7 @@ def validate(hostx):
 
 
 ## sslGrabber - IPv6
-def sslGrabber6(hostx,port):
+def sslGrabber6(hostx, port):
     context = ssl.create_default_context()
     context.check_hostname = False
     context.verify_mode = ssl.CERT_OPTIONAL
@@ -209,7 +215,6 @@ def sslGrabber6(hostx,port):
 
 # sslGrabber Function
 def sslGrabber(hostx, port):
-
     try:
         cert = ssl.get_server_certificate((hostx.address, port))
         x509 = OpenSSL.crypto.load_certificate(
@@ -275,9 +280,9 @@ def queryAPI(url, hostx):
     try:
         r2 = requests.get(url + hostx.address, custom_headers).text
         if (r2.find("No DNS A records found") == -
-            1) and (r2.find("API count exceeded") == -
-                    1 and r2.find("error") == -
-                    1):
+        1) and (r2.find("API count exceeded") == -
+        1 and r2.find("error") == -
+                1):
             for host in r2.split('\n'):
                 if (host == "") or (host in hostx.hname):
                     pass
@@ -301,7 +306,7 @@ def reverseiplookup(hostx):
         rhostname = socket.gethostbyaddr(hostx.address)[0]
     except socket.error:
         return
-    if (rhostname not in hostx.hname):
+    if rhostname not in hostx.hname:
         hostx.hname.append(rhostname)
     return
 
@@ -321,69 +326,23 @@ def sig_handler(signal, frame):
 
 # Write Function
 def write_results():
-    base_path=""
-    list_format=args.format.split(',')
-    list_format=[format_type.lower() for format_type in list_format]
-    # Output File Naming & Path
-    if not args.output:
-        base_path = "hh_"+ datetime.now().strftime("%d_%m_%Y-%H.%M.%S")
-    # appsf = open(args.output+base_path+".webapps", "wt")  # Write File
-    vhostsf = open(args.output+base_path+".json", "wt")
-    # vhostsf_csv = open(args.output+base_path+".vhosts.csv", "wt")
-    # nessusf = open(args.output+base_path+".nessus", 'wt')
+    list_format = args.format.split(',')
+    list_format = [format_type.lower() for format_type in list_format]
 
-    for format in list_format:
-        match format:
-            case "csv":
-                # # Write Header in CSV File
-                # vhostsf_csv.write(
-                #     "\"" +
-                #     "IP Address" +
-                #     "\",\"" +
-                #     "Port/Protocol" +
-                #     "\",\"" +
-                #     "Domains" +
-                #     "\",\"" +
-                #     "Operating System" +
-                #     "\",\"" +
-                #     "OS Version" +
-                #     "\",\"" +
-                #     "Notes" +
-                #     "\"\n")  # vhosts.csv Header
-                #     # Merging the lists prooved Faster than list iterations
-                # for item in data_dict:
-                #     for host in data_dict[item].hname:
-                #         hostnames = ','.join(data_dict[item].hname)
-                #         row = "\"" + data_dict[item].address + "\"," + "\"443/tcp\"" + \
-                #         "," + "\"" + hostnames + "\",\"\",\"\",\"\"" + "\n"
-                #     vhostsf_csv.write(row)
-                pass
-            case "nessus":
-                # # Nessus Function  - Generates IP/Hostname pairs in Nessus tool format.
-                # for item in data_dict:
-                #     for host in data_dict[item].hname:
-                #         row = host + "[" + data_dict[item].address + "], "
-                #         nessusf.write(row)
-                #     if not data_dict[item].hname:
-                #         nessusf.write(data_dict[item].address)
-                #     nessusf.close()
-                    pass
+    # vhostsf = open(args.output + ".json", "wt")
+    root_path = pathlib.Path(__file__).parent
+    file_path = root_path.joinpath(args.output)
 
-            case "txt":
-                resultdic = []
+    resultdic = []
 
-                for item in data_dict:
-                    for hname in data_dict[item].hname:
-                        resultdic.append({"hostname": hname})
+    for item in data_dict:
+        for hname in data_dict[item].hname:
+            resultdic.append({"hostname": hname})
 
-                json.dump(resultdic, vhostsf)
-                vhostsf.close()
-
-
+    file_path.write_text(json.dumps(resultdic))
     # Write Results in TXT File
     for item in data_dict:
-        #print(data_dict[item].address)
-
+        # print(data_dict[item].address)
 
         if (data_dict[item].apps):
             apps = ','.join(data_dict[item].apps)
@@ -394,10 +353,10 @@ def write_results():
 
 
 # stats Function - Prints Statistics cause metrics are fun
-def stats(start_time,counter,target_list):
+def stats(start_time, counter, target_list):
     print("\n" + "|" + "-" * 100 + "|", end="\n\n")
     print("  Hunting Completed!", end="\n\n")
-    print("  Searched against",len(target_list),"targets",end="\n\n")
+    print("  Searched against", len(target_list), "targets", end="\n\n")
     if counter == 0:
         print("  0 hostname was discovered in %s sec" %
               (round(time() - start_time, 2)), end="\n\n")
@@ -405,6 +364,7 @@ def stats(start_time,counter,target_list):
         print("  %s hostnames were discovered in %s sec" %
               (counter, round(time() - start_time, 2)), end="\n\n")
     print("|" + "-" * 100 + "|")
+
 
 # verify  Function - Attempts to Verify Target IP Matches Hostname
 def verify(hostx):
@@ -418,6 +378,7 @@ def verify(hostx):
 
     return len(hostx.hname)
 
+
 def ipv6_on():
     try:
         # Create a socket for IPv6 and connect to ipv6.google.com on port 80
@@ -429,10 +390,11 @@ def ipv6_on():
     finally:
         sock.close()
 
+
 # Main Function
 def main(argc, targets):
     counter = 0
-    ports=args.grab.split(',')
+    ports = args.grab.split(',')
 
     if args.debug == True:
         print("[!] Debug Mode: ON")
@@ -447,8 +409,8 @@ def main(argc, targets):
         # Reverse DNS Lookup
         reverseiplookup(hostx)
 
-        if ipv6_enabled==True & hostx.ipv6==True:
-            sslGrabber6(hostx,443)
+        if ipv6_enabled == True & hostx.ipv6 == True:
+            sslGrabber6(hostx, 443)
 
         # Fetch SSL Certificates [Default: 21, 25, 443, 993, 8443]
         for port in ports:
@@ -484,6 +446,8 @@ def main(argc, targets):
 
     write_results()
     return counter
+
+
 # End of Main Function
 
 
@@ -494,6 +458,6 @@ if __name__ == "__main__":
     initialise()  # Input Argument Checks
     display_banner()  # Banner
     targets = read_targets()
-    counter = main(sys.argv,targets)  # Main Function
-    stats(start_time,counter,targets)
+    counter = main(sys.argv, targets)  # Main Function
+    stats(start_time, counter, targets)
 # EOF
