@@ -379,6 +379,7 @@ def write_results():
                 json.dump(resultdic, vhostsf)
                 vhostsf.close()
 
+
     # Write Results in TXT File
     for item in data_dict:
         #print(data_dict[item].address)
