@@ -338,8 +338,9 @@ def write_results():
     for item in data_dict:
         for hname in data_dict[item].hname:
             resultdic.append({"hostname": hname})
+    final = {"hosts": resultdic}
 
-    file_path.write_text(json.dumps(resultdic))
+    file_path.write_text(json.dumps(final))
     # Write Results in TXT File
     for item in data_dict:
         # print(data_dict[item].address)
