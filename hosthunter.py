@@ -333,7 +333,7 @@ def write_results():
     # vhostsf = open(args.output + ".json", "wt")
     root_path = pathlib.Path(__file__).parent
     file_path = root_path.joinpath(args.output)
-
+    print(file_path)
     resultdic = []
 
     for item in data_dict:
@@ -342,14 +342,14 @@ def write_results():
 
     file_path.write_text(json.dumps(resultdic))
     # Write Results in TXT File
-    for item in data_dict:
-        # print(data_dict[item].address)
-
-        if (data_dict[item].apps):
-            apps = ','.join(data_dict[item].apps)
-            row = "\"" + data_dict[item].address
-            + "\"," + "\"" + apps + "\"" + "\n"
-            appsf.write(row)
+    # for item in data_dict:
+    #     # print(data_dict[item].address)
+    #
+    #     if (data_dict[item].apps):
+    #         apps = ','.join(data_dict[item].apps)
+    #         row = "\"" + data_dict[item].address
+    #         + "\"," + "\"" + apps + "\"" + "\n"
+    #         appsf.write(row)
     # Write Results in HTML File
 
 
