@@ -121,15 +121,16 @@ def initialise():
         print("\n[*] Error: targets file", args.targets, "does not exist.\n")
         exit()
 
-    if os.path.exists(args.output):
-        print(
-            "\n[?] {} file already exists, would you like to overwrite it?".format(
-                args.output))
-        answer = input("Answer with [Y]es or [N]o : ").lower()
-        if (answer == 'yes' or answer == 'y'):
-            pass
-        else:
-            exit()
+    # Если файл существует, продолжить или нет?
+    # if os.path.exists(args.output):
+    #     print(
+    #         "\n[?] {} file already exists, would you like to overwrite it?".format(
+    #             args.output))
+    #     answer = input("Answer with [Y]es or [N]o : ").lower()
+    #     if (answer == 'yes' or answer == 'y'):
+    #         pass
+    #     else:
+    #         exit()
 
     if ipv6_on():
         global ipv6_enabled
@@ -261,7 +262,7 @@ def analyze_header(header, hostx):
                           allow_redirects=False,
                           headers=custom_headers, timeout=5).text
         r2.close()
-        if (r2.status_code in range(300, 400)):
+        if r2.status_code in range(300, 400):
             try:
                 webapp = (r2.headers['Location'])
                 hostx.apps.append(webapp)
