@@ -10,8 +10,7 @@ import socket
 import json
 import signal
 import re
-from datetime import datetime
-from time import time, sleep
+import time
 # External Python Libraries
 from validator_collection import checkers
 import OpenSSL
@@ -299,7 +298,7 @@ def queryAPI(url, hostx):
             urllib3.exceptions.TimeoutError, socket.error, socket.timeout):
         print("\n[*] Error: connecting with HackerTarget.com API")
     finally:
-        sleep(0.5)
+        time.sleep(0.5)
 
 
 def reverseiplookup(hostx):
@@ -322,14 +321,11 @@ def sig_handler(signal, frame):
     except BaseException:
         pass
     print("\n[!] See you soon...\n")
-    sys.exit(0)
+    exit(0)
 
 
 # Write Function
 def write_results():
-    list_format = args.format.split(',')
-    list_format = [format_type.lower() for format_type in list_format]
-
     # vhostsf = open(args.output + ".json", "wt")
     root_path = pathlib.Path(__file__).parent
     file_path = root_path.joinpath(args.output)
@@ -340,17 +336,12 @@ def write_results():
         for hname in data_dict[item].hname:
             resultdic.append({"hostname": hname})
 
-    file_path.write_text(json.dumps(resultdic))
-    # Write Results in TXT File
-    # for item in data_dict:
-    #     # print(data_dict[item].address)
-    #
-    #     if (data_dict[item].apps):
-    #         apps = ','.join(data_dict[item].apps)
-    #         row = "\"" + data_dict[item].address
-    #         + "\"," + "\"" + apps + "\"" + "\n"
-    #         appsf.write(row)
-    # Write Results in HTML File
+    if resultdic == []:
+        resultdic = {
+            "Empty": "Nothing found by Host Hunter"
+        }
+    with open(file_path, "w") as jf:
+        json.dump(resultdic, jf, indent=2)
 
 
 # stats Function - Prints Statistics cause metrics are fun
@@ -360,10 +351,10 @@ def stats(start_time, counter, target_list):
     print("  Searched against", len(target_list), "targets", end="\n\n")
     if counter == 0:
         print("  0 hostname was discovered in %s sec" %
-              (round(time() - start_time, 2)), end="\n\n")
+              (round(time.time() - start_time, 2)), end="\n\n")
     else:
         print("  %s hostnames were discovered in %s sec" %
-              (counter, round(time() - start_time, 2)), end="\n\n")
+              (counter, round(time.time() - start_time, 2)), end="\n\n")
     print("|" + "-" * 100 + "|")
 
 
@@ -455,7 +446,7 @@ def main(argc, targets):
 # Main Module
 if __name__ == "__main__":
     signal.signal(signal.SIGINT, sig_handler)  # Signal Listener
-    start_time = time()  # Start Counter
+    start_time = time.time()  # Start Counter
     initialise()  # Input Argument Checks
     display_banner()  # Banner
     targets = read_targets()
